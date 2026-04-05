@@ -2,6 +2,7 @@ import express from 'express'
 import mongoose from 'mongoose'
 import { Campground } from './models/campground.js'
 import methodOverride from 'method-override'
+import ejsMate from 'ejs-mate'
 const app=express()
 
 mongoose.connect('mongodb://127.0.0.1:27017/spot-finder')
@@ -16,6 +17,8 @@ app.set('view engine','ejs')
 app.set('views','views')
 app.use(express.urlencoded({extended:true}))
 app.use(methodOverride('_method'))
+app.engine('ejs', ejsMate);
+
 
 app.get('/',(req,res)=>{
     res.render('home')
