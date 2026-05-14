@@ -5,9 +5,13 @@ import { ExpressError } from './utils/ExpressError.js'
 import methodOverride from 'method-override'
 import session from 'express-session'
 import flash from 'connect-flash'
+import passport from 'passport'
+import LocalStrategy from 'passport-local'
+import {User} from './models/user.js'
 
-import campgrounds from './routes/campgrounds.js'
-import reviews from './routes/reviews.js'
+import campgroundRoutes from './routes/campgrounds.js'
+import reviewRoutes from './routes/reviews.js'
+import userRoutes from './routes/users.js'
 
 const app=express()
 
@@ -23,9 +27,6 @@ app.set('view engine','ejs')
 app.set('views','views')
 app.engine('ejs', ejsMate);
 
-app.use(express.urlencoded({extended:true}))
-app.use(methodOverride('_method'))
-app.use(express.static('public'))
 const sessionConfig={
     secret:'asecret!',
     resave:false,
@@ -36,16 +37,33 @@ const sessionConfig={
         maxAge:1000*60*60*24*7
     }
 }
+app.use(express.urlencoded({extended:true}))
+app.use(methodOverride('_method'))
+app.use(express.static('public'))
+
 app.use(session(sessionConfig))
 app.use(flash())
+app.use(passport.initialize())
+app.use(passport.session())
+passport.use(new LocalStrategy(User.authenticate()))
+passport.serializeUser(User.serializeUser())
+passport.deserializeUser(User.deserializeUser())
 
 app.use((req,res,next)=>{
+    console.log(req.session)
+    res.locals.currentUser=req.user
     res.locals.success=req.flash('success')
     res.locals.error=req.flash('error')
     next()
 })
-app.use('/campgrounds',campgrounds)
-app.use('/campgrounds/:id/reviews',reviews)
+
+
+
+
+
+app.use('/campgrounds',campgroundRoutes)
+app.use('/campgrounds/:id/reviews',reviewRoutes)
+app.use('/',userRoutes)
 
 
 
