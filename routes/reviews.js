@@ -1,27 +1,17 @@
 import express from 'express'
 const router=express.Router({mergeParams:true})
-
 import {catchAsync} from '../utils/catchAsync.js'
 import { Campground } from '../models/campground.js'
 import { Review } from '../models/review.js'
 import { ExpressError } from '../utils/ExpressError.js'
-import {reviewSchema} from '../schemas.js'
+import { validateReview, isLoggedin, isReviewAuthor } from '../middleware.js'
 
 
-const validateReview=(req,res,next)=>{
-    const {error} = reviewSchema.validate(req.body);
-    console.log(error)
-    if(error){
-        const msg=error.details.map(ele=>ele.message).join(',')
-        throw new ExpressError(msg,404);
-    }else{
-        next()
-    }
-}
 
-router.post('/',validateReview,catchAsync(async(req,res)=>{
+router.post('/',isLoggedin,validateReview,catchAsync(async(req,res)=>{
     const campground=await Campground.findById(req.params.id);
     const review=new Review(req.body.review)
+    review.author=req.user._id;
     campground.reviews.push(review)
     await review.save();
     await campground.save();
@@ -29,7 +19,7 @@ router.post('/',validateReview,catchAsync(async(req,res)=>{
     res.redirect(`/campgrounds/${campground._id}`)
 }))
 
-router.delete('/:reviewId',catchAsync(async (req,res)=>{
+router.delete('/:reviewId',isLoggedin,isReviewAuthor,catchAsync(async (req,res)=>{
     const {id,reviewId} =req.params;
     Campground.findByIdAndUpdate(id,{$pull:{reviews:reviewId}})
     const review=await Review.findByIdAndDelete(reviewId);
