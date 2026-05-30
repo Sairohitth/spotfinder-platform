@@ -1,3 +1,10 @@
+import dotenv from 'dotenv';
+
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config();
+}
+
+
 import express from 'express'
 import mongoose from 'mongoose'
 import ejsMate from 'ejs-mate'

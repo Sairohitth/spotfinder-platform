@@ -4,16 +4,19 @@ import {catchAsync} from '../utils/catchAsync.js'
 import { Campground } from '../models/campground.js'
 import { isLoggedin, validateCampground, isAuthor } from '../middleware.js'
 import * as campgrounds from '../controllers/campgrounds.js'
+import multer from 'multer'
+import { storage } from '../cloudinary/index.js';
+const upload = multer({ storage });
 
 router.route('/')
 .get(catchAsync(campgrounds.index))
-.post(isLoggedin,validateCampground,catchAsync(campgrounds.createCampground))
+.post(isLoggedin,upload.array('image'),validateCampground,catchAsync(campgrounds.createCampground))
 
 router.get('/new',isLoggedin,campgrounds.renderNewForm)
 
 router.route('/:id')
 .get(catchAsync(campgrounds.showCampground))
-.put(isLoggedin,isAuthor,validateCampground,catchAsync(campgrounds.updateCampground))
+.put(isLoggedin,isAuthor,upload.array('image'),validateCampground,catchAsync(campgrounds.updateCampground))
 .delete(isLoggedin,isAuthor,catchAsync(campgrounds.deleteCampground))
 
 router.get('/:id/edit', isLoggedin, isAuthor, catchAsync(campgrounds.renderEditForm))
