@@ -9,6 +9,11 @@
     <div class="input-group">
         <input class="form-control" type="search" name="search" placeholder="Search by title or location"
             value="<%= search %>">
+        <select class="form-select" name="sort" aria-label="Sort campgrounds">
+            <option value="newest" <%= sort === 'newest' ? 'selected' : '' %>>Newest</option>
+            <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
+            <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
+        </select>
         <button class="btn btn-primary">Search</button>
         <% if(search) { %>
             <a class="btn btn-outline-secondary" href="/campgrounds">Clear</a>

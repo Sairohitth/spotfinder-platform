@@ -2,8 +2,14 @@ import { Campground } from '../models/campground.js'
 import { cloudinary } from '../cloudinary/index.js';
 
 export const index = async (req, res) => {
-    const { search = '' } = req.query;
+    const { search = '', sort = 'newest' } = req.query;
     const trimmedSearch = search.trim();
+    const sortOptions = {
+        newest: { _id: -1 },
+        price_asc: { price: 1 },
+        price_desc: { price: -1 }
+    };
+    const selectedSort = sortOptions[sort] ? sort : 'newest';
     const query = trimmedSearch
         ? {
             $or: [
@@ -12,8 +18,8 @@ export const index = async (req, res) => {
             ]
         }
         : {};
-    const campgrounds = await Campground.find(query);
-    res.render('campgrounds/index', { campgrounds, search: trimmedSearch })
+    const campgrounds = await Campground.find(query).sort(sortOptions[selectedSort]);
+    res.render('campgrounds/index', { campgrounds, search: trimmedSearch, sort: selectedSort })
 }
 
 export const renderNewForm=(req,res)=>{
@@ -56,7 +62,7 @@ export const renderEditForm=async(req,res)=>{
 
 export const updateCampground = async (req,res)=>{
     const {id} =req.params
-    console.log(req.body)
+    // console.log(req.body)
     const campground=await Campground.findByIdAndUpdate(id,{...req.body.campground})
     const imgs=req.files.map(f=>({url:f.path,filename:f.filename}))
     campground.images.push(...imgs)
