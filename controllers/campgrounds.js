@@ -2,8 +2,18 @@ import { Campground } from '../models/campground.js'
 import { cloudinary } from '../cloudinary/index.js';
 
 export const index = async (req, res) => {
-    const campgrounds = await Campground.find({});
-    res.render('campgrounds/index', { campgrounds })
+    const { search = '' } = req.query;
+    const trimmedSearch = search.trim();
+    const query = trimmedSearch
+        ? {
+            $or: [
+                { title: { $regex: trimmedSearch, $options: 'i' } },
+                { location: { $regex: trimmedSearch, $options: 'i' } }
+            ]
+        }
+        : {};
+    const campgrounds = await Campground.find(query);
+    res.render('campgrounds/index', { campgrounds, search: trimmedSearch })
 }
 
 export const renderNewForm=(req,res)=>{

@@ -5,6 +5,23 @@
     <a href="/campgrounds/new">Add Campground</a>
 </div>
 
+<form action="/campgrounds" method="GET" class="my-3">
+    <div class="input-group">
+        <input class="form-control" type="search" name="search" placeholder="Search by title or location"
+            value="<%= search %>">
+        <button class="btn btn-primary">Search</button>
+        <% if(search) { %>
+            <a class="btn btn-outline-secondary" href="/campgrounds">Clear</a>
+        <% } %>
+    </div>
+</form>
+
+<% if(campgrounds.length === 0) { %>
+    <div class="alert alert-info" role="alert">
+        No campgrounds matched your search. Try a different title or location.
+    </div>
+<% } %>
+
 <% for(let campground of campgrounds) {%>
     <div class="card mb-3">
         <div class="row">
