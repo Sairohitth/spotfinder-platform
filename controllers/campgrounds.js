@@ -2,12 +2,15 @@ import { Campground } from '../models/campground.js'
 import { cloudinary } from '../cloudinary/index.js';
 
 export const index = async (req, res) => {
-    const { search = '', sort = 'newest', minPrice = '', maxPrice = '' } = req.query;
+    const { search = '', sort = 'newest', minPrice = '', maxPrice = '', page = '1' } = req.query;
     const trimmedSearch = search.trim();
     const trimmedMinPrice = minPrice.trim();
     const trimmedMaxPrice = maxPrice.trim();
     const minPriceNumber = Number(trimmedMinPrice);
     const maxPriceNumber = Number(trimmedMaxPrice);
+    const limit = 6;
+    const requestedPage = Number.parseInt(page, 10);
+    let currentPage = Number.isNaN(requestedPage) || requestedPage < 1 ? 1 : requestedPage;
     const sortOptions = {
         newest: { _id: -1 },
         price_asc: { price: 1 },
@@ -34,15 +37,24 @@ export const index = async (req, res) => {
             delete query.price;
         }
     }
+    const totalCampgrounds = await Campground.countDocuments(query);
+    const totalPages = Math.ceil(totalCampgrounds / limit) || 1;
+    if (currentPage > totalPages) {
+        currentPage = totalPages;
+    }
     const campgrounds = await Campground.find(query)
         .populate({ path: 'reviews', select: 'rating' })
-        .sort(sortOptions[selectedSort]);
+        .sort(sortOptions[selectedSort])
+        .skip((currentPage - 1) * limit)
+        .limit(limit);
     res.render('campgrounds/index', {
         campgrounds,
         search: trimmedSearch,
         sort: selectedSort,
         minPrice: trimmedMinPrice,
-        maxPrice: trimmedMaxPrice
+        maxPrice: trimmedMaxPrice,
+        currentPage,
+        totalPages
     })
 }
 

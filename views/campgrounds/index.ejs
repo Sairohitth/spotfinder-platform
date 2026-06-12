@@ -53,3 +53,29 @@
         </div>
     </div>
 <% } %>
+
+<% if(totalPages > 1) { %>
+    <% const paginationParams = new URLSearchParams(); %>
+    <% if(search) paginationParams.set('search', search); %>
+    <% if(sort && sort !== 'newest') paginationParams.set('sort', sort); %>
+    <% if(minPrice) paginationParams.set('minPrice', minPrice); %>
+    <% if(maxPrice) paginationParams.set('maxPrice', maxPrice); %>
+    <nav aria-label="Campground pages">
+        <ul class="pagination justify-content-center">
+            <% paginationParams.set('page', currentPage - 1); %>
+            <li class="page-item <%= currentPage === 1 ? 'disabled' : '' %>">
+                <a class="page-link" href="/campgrounds?<%= paginationParams.toString() %>">Previous</a>
+            </li>
+            <% for(let pageNumber = 1; pageNumber <= totalPages; pageNumber++) { %>
+                <% paginationParams.set('page', pageNumber); %>
+                <li class="page-item <%= currentPage === pageNumber ? 'active' : '' %>">
+                    <a class="page-link" href="/campgrounds?<%= paginationParams.toString() %>"><%= pageNumber %></a>
+                </li>
+            <% } %>
+            <% paginationParams.set('page', currentPage + 1); %>
+            <li class="page-item <%= currentPage === totalPages ? 'disabled' : '' %>">
+                <a class="page-link" href="/campgrounds?<%= paginationParams.toString() %>">Next</a>
+            </li>
+        </ul>
+    </nav>
+<% } %>
