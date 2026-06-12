@@ -2,8 +2,12 @@ import { Campground } from '../models/campground.js'
 import { cloudinary } from '../cloudinary/index.js';
 
 export const index = async (req, res) => {
-    const { search = '', sort = 'newest' } = req.query;
+    const { search = '', sort = 'newest', minPrice = '', maxPrice = '' } = req.query;
     const trimmedSearch = search.trim();
+    const trimmedMinPrice = minPrice.trim();
+    const trimmedMaxPrice = maxPrice.trim();
+    const minPriceNumber = Number(trimmedMinPrice);
+    const maxPriceNumber = Number(trimmedMaxPrice);
     const sortOptions = {
         newest: { _id: -1 },
         price_asc: { price: 1 },
@@ -18,8 +22,26 @@ export const index = async (req, res) => {
             ]
         }
         : {};
+    if (trimmedMinPrice || trimmedMaxPrice) {
+        query.price = {};
+        if (trimmedMinPrice && !Number.isNaN(minPriceNumber)) {
+            query.price.$gte = minPriceNumber;
+        }
+        if (trimmedMaxPrice && !Number.isNaN(maxPriceNumber)) {
+            query.price.$lte = maxPriceNumber;
+        }
+        if (Object.keys(query.price).length === 0) {
+            delete query.price;
+        }
+    }
     const campgrounds = await Campground.find(query).sort(sortOptions[selectedSort]);
-    res.render('campgrounds/index', { campgrounds, search: trimmedSearch, sort: selectedSort })
+    res.render('campgrounds/index', {
+        campgrounds,
+        search: trimmedSearch,
+        sort: selectedSort,
+        minPrice: trimmedMinPrice,
+        maxPrice: trimmedMaxPrice
+    })
 }
 
 export const renderNewForm=(req,res)=>{

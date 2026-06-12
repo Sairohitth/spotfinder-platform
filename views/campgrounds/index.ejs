@@ -2,7 +2,7 @@
 
 <h1>All campgrounds</h1>
 <div>
-    <a href="/campgrounds/new">Add Campground</a>
+    <a class="btn btn-outline-primary" href="/campgrounds/new">Add Campground</a>
 </div>
 
 <form action="/campgrounds" method="GET" class="my-3">
@@ -14,10 +14,12 @@
             <option value="price_asc" <%= sort === 'price_asc' ? 'selected' : '' %>>Price: Low to High</option>
             <option value="price_desc" <%= sort === 'price_desc' ? 'selected' : '' %>>Price: High to Low</option>
         </select>
+        <input class="form-control" type="number" name="minPrice" placeholder="Min price" min="0"
+            value="<%= minPrice %>">
+        <input class="form-control" type="number" name="maxPrice" placeholder="Max price" min="0"
+            value="<%= maxPrice %>">
         <button class="btn btn-primary">Search</button>
-        <% if(search) { %>
-            <a class="btn btn-outline-secondary" href="/campgrounds">Clear</a>
-        <% } %>
+        <a class="btn btn-outline-secondary" href="/campgrounds">Clear Filters</a>
     </div>
 </form>
 
