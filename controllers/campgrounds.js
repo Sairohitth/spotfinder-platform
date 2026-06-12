@@ -54,7 +54,35 @@ export const myListings = async (req, res) => {
     const campgrounds = await Campground.find({ author: req.user._id })
         .populate({ path: 'reviews', select: 'rating' })
         .sort({ _id: -1 });
-    res.render('campgrounds/my-listings', { campgrounds });
+    const totalCampgrounds = campgrounds.length;
+    const numericPrices = campgrounds
+        .map(campground => campground.price)
+        .filter(price => typeof price === 'number' && !Number.isNaN(price));
+    const allReviews = campgrounds.flatMap(campground => campground.reviews);
+    const totalReviews = allReviews.length;
+    const averageRating = totalReviews
+        ? (allReviews.reduce((total, review) => total + review.rating, 0) / totalReviews).toFixed(1)
+        : null;
+    const averagePrice = numericPrices.length
+        ? (numericPrices.reduce((total, price) => total + price, 0) / numericPrices.length).toFixed(2)
+        : null;
+    const highestRatedCampground = campgrounds.reduce((highest, campground) => {
+        if (campground.reviews.length === 0) return highest;
+        const ratingTotal = campground.reviews.reduce((total, review) => total + review.rating, 0);
+        const average = ratingTotal / campground.reviews.length;
+        if (!highest || average > highest.averageRating) {
+            return { campground, averageRating: average };
+        }
+        return highest;
+    }, null);
+    const stats = {
+        totalCampgrounds,
+        totalReviews,
+        averageRating,
+        averagePrice,
+        highestRatedCampground
+    };
+    res.render('campgrounds/my-listings', { campgrounds, stats });
 }
 
 export const createCampground=async(req,res,next)=>{
