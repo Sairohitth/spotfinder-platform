@@ -14,6 +14,8 @@ router.route('/')
 
 router.get('/new',isLoggedin,campgrounds.renderNewForm)
 
+router.get('/my-listings', isLoggedin, catchAsync(campgrounds.myListings))
+
 router.route('/:id')
 .get(catchAsync(campgrounds.showCampground))
 .put(isLoggedin,isAuthor,upload.array('image'),validateCampground,catchAsync(campgrounds.updateCampground))

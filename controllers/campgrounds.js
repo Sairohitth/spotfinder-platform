@@ -48,6 +48,11 @@ export const renderNewForm=(req,res)=>{
     res.render('campgrounds/new')
 }
 
+export const myListings = async (req, res) => {
+    const campgrounds = await Campground.find({ author: req.user._id }).sort({ _id: -1 });
+    res.render('campgrounds/my-listings', { campgrounds });
+}
+
 export const createCampground=async(req,res,next)=>{
     const campground=new Campground(req.body.campground)
     campground.images=req.files.map(f=>({url:f.path,filename:f.filename}))
