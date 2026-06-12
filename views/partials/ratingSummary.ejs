@@ -1,0 +1,12 @@
+<% const reviewCount = campground.reviews.length; %>
+<% if(reviewCount > 0) { %>
+    <% const ratingTotal = campground.reviews.reduce((total, review) => total + review.rating, 0); %>
+    <% const averageRating = (ratingTotal / reviewCount).toFixed(1); %>
+    <p class="card-text mb-1">
+        <small class="text-muted">Average rating: <%= averageRating %> / 5 (<%= reviewCount %> <%= reviewCount === 1 ? 'review' : 'reviews' %>)</small>
+    </p>
+<% } else { %>
+    <p class="card-text mb-1">
+        <small class="text-muted">No reviews yet</small>
+    </p>
+<% } %>

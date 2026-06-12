@@ -34,7 +34,9 @@ export const index = async (req, res) => {
             delete query.price;
         }
     }
-    const campgrounds = await Campground.find(query).sort(sortOptions[selectedSort]);
+    const campgrounds = await Campground.find(query)
+        .populate({ path: 'reviews', select: 'rating' })
+        .sort(sortOptions[selectedSort]);
     res.render('campgrounds/index', {
         campgrounds,
         search: trimmedSearch,
@@ -49,7 +51,9 @@ export const renderNewForm=(req,res)=>{
 }
 
 export const myListings = async (req, res) => {
-    const campgrounds = await Campground.find({ author: req.user._id }).sort({ _id: -1 });
+    const campgrounds = await Campground.find({ author: req.user._id })
+        .populate({ path: 'reviews', select: 'rating' })
+        .sort({ _id: -1 });
     res.render('campgrounds/my-listings', { campgrounds });
 }
 
